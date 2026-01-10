@@ -13,9 +13,6 @@ RUN bun install --frozen-lockfile
 # Build stage - compile TypeScript and build
 FROM base AS build
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=dependencies /app/packages/server/node_modules ./packages/server/node_modules 2>/dev/null || true
-COPY --from=dependencies /app/packages/web/node_modules ./packages/web/node_modules 2>/dev/null || true
-COPY --from=dependencies /app/packages/shared/node_modules ./packages/shared/node_modules 2>/dev/null || true
 COPY . .
 RUN bun run build
 
