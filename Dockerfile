@@ -24,8 +24,8 @@ FROM oven/bun:1-slim AS production
 WORKDIR /app
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 bunjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs --shell /bin/false bunjs
 
 # Copy dependencies and built artifacts
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -38,10 +38,6 @@ USER bunjs
 
 # Railway injects PORT environment variable
 EXPOSE 3000
-
-# Health check for Railway
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
 
 # Start the server
 CMD ["bun", "run", "start"]
