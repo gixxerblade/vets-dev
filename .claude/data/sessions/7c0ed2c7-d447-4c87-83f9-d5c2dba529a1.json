@@ -1,7 +1,0 @@
-{
-  "session_id": "7c0ed2c7-d447-4c87-83f9-d5c2dba529a1",
-  "prompts": [
-    "/refine_plan @specs/site-plan.md does this plan make sense or should it be updated?"
-  ],
-  "agent_name": "Quantum"
-}

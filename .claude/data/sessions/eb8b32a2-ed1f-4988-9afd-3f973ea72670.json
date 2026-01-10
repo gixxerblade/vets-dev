@@ -1,8 +1,0 @@
-{
-  "session_id": "eb8b32a2-ed1f-4988-9afd-3f973ea72670",
-  "prompts": [
-    "/load_ai_docs ",
-    "<agent-notification>\n<agent-id>adf6887</agent-id>\n<output-file>/tmp/claude/-Users-stephenclark-Desktop-new-code-vets-dev/tasks/adf6887.output</output-file>\n<status>completed</status>\n<summary>Agent \"Scrape effect llms.txt\" completed.</summary>\nRead the output file to retrieve the full result.\n</agent-notification>\n<agent-notification>\n<agent-id>ac0310d</agent-id>\n<output-file>/tmp/claude/-Users-stephenclark-Desktop-new-code-vets-dev/tasks/ac0310d.output</output-file>\n<status>completed</status>\n<summary>Agent \"Scrape best-practices docs\" completed.</summary>\nRead the output file to retrieve the full result.\n</agent-notification>\n<agent-notification>\n<agent-id>aeaa8cf</agent-id>\n<output-file>/tmp/claude/-Users-stephenclark-Desktop-new-code-vets-dev/tasks/aeaa8cf.output</output-file>\n<status>completed</status>\n<summary>Agent \"Scrape claude-code custom-tools\" completed.</summary>\nRead the output file to retrieve the full result.\n</agent-notification>\n<agent-notification>\n<agent-id>a2a52e8</agent-id>\n<output-file>/tmp/claude/-Users-stephenclark-Desktop-new-code-vets-dev/tasks/a2a52e8.output</output-file>\n<status>completed</status>\n<summary>Agent \"Scrape python docs\" completed.</summary>\nRead the output file to retrieve the full result.\n</agent-notification>"
-  ],
-  "agent_name": "Axiom"
-}
