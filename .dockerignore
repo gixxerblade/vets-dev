@@ -1,0 +1,50 @@
+# Dependencies - will be installed fresh
+node_modules
+
+# Git
+.git
+.gitignore
+
+# Environment files - secrets managed via Railway
+.env
+.env.*
+!.env.example
+
+# Development files
+.vscode
+.idea
+*.log
+logs/
+
+# Build artifacts (will be generated fresh)
+dist/
+packages/*/dist/
+
+# Documentation and specs
+*.md
+specs/
+ai_docs/
+PHASE_*.md
+
+# Docker files (not needed in image)
+docker/
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Claude configuration
+.claude/
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+**/__tests__/
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
