@@ -3,7 +3,8 @@ import { layout } from "./layout.js";
 export const renderHomePage = (): string =>
   layout({
     title: "Home",
-    description: "Verified credentials for U.S. military veterans who are software developers",
+    description:
+      "Verified credentials for U.S. military veterans who are software developers",
     content: `
       <section style="text-align: center; padding: 4rem 0;">
         <h1>Verified Veteran Developers</h1>

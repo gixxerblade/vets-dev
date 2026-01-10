@@ -1,16 +1,16 @@
 import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  boolean,
-  timestamp,
   bigint,
+  boolean,
+  index,
+  inet,
   integer,
   jsonb,
-  inet,
-  index,
+  pgTable,
+  text,
+  timestamp,
   uniqueIndex,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 // Users table
@@ -29,7 +29,7 @@ export const users = pgTable(
   (table) => [
     index("idx_users_github_username").on(table.githubUsername),
     index("idx_users_verified").on(table.verifiedVeteran),
-  ]
+  ],
 );
 
 // Profiles table (1:1 with users)
@@ -62,7 +62,7 @@ export const sessions = pgTable(
   (table) => [
     index("idx_sessions_token").on(table.tokenHash),
     index("idx_sessions_expires").on(table.expiresAt),
-  ]
+  ],
 );
 
 // Verification events (immutable audit log)
@@ -81,7 +81,7 @@ export const verificationEvents = pgTable(
   (table) => [
     index("idx_verification_user").on(table.userId),
     uniqueIndex("idx_verification_idempotency").on(table.idempotencyKey),
-  ]
+  ],
 );
 
 // Audit log (immutable)
@@ -89,7 +89,9 @@ export const auditLog = pgTable(
   "audit_log",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     action: varchar("action", { length: 100 }).notNull(), // 'login', 'logout', 'verify_start', etc.
     ipAddress: inet("ip_address"),
     userAgent: text("user_agent"),
@@ -100,7 +102,7 @@ export const auditLog = pgTable(
     index("idx_audit_user").on(table.userId),
     index("idx_audit_action").on(table.action),
     index("idx_audit_created").on(table.createdAt),
-  ]
+  ],
 );
 
 // Type exports for use in application code

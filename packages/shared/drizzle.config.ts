@@ -1,6 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig } from "drizzle-kit";
-import { readFileSync, existsSync } from "fs";
-import { resolve } from "path";
 
 // Load .env from project root if DATABASE_URL not set
 if (!process.env.DATABASE_URL) {

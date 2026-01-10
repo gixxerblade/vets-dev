@@ -1,18 +1,24 @@
 {
   "name": "vets-dev",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "bun run --filter @vets-dev/server dev",
     "build": "bun run --filter '*' build",
     "test": "bun test",
+    "tsc": "tsc --noEmit",
     "test:e2e": "bun run --filter @vets-dev/server test:e2e",
     "db:generate": "bun run --filter @vets-dev/shared db:generate",
     "db:migrate": "bun run --filter @vets-dev/shared db:migrate",
     "db:studio": "bun run --filter @vets-dev/shared db:studio",
-    "typecheck": "bun run --filter '*' typecheck"
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "biome lint .",
+    "format": "biome format --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
     "@types/bun": "^1.1.14",
     "typescript": "^5.7.2"
   }

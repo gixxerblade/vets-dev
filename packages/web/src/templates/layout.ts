@@ -4,7 +4,11 @@ export interface LayoutOptions {
   content: string;
 }
 
-export const layout = ({ title, description, content }: LayoutOptions): string => `<!DOCTYPE html>
+export const layout = ({
+  title,
+  description,
+  content,
+}: LayoutOptions): string => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">

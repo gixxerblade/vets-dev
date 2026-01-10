@@ -1,11 +1,23 @@
-import { Effect, Data } from "effect";
+import { Data, Effect } from "effect";
 
 // User state types
 export type UserState =
   | { readonly _tag: "Unauthenticated" }
-  | { readonly _tag: "Authenticated"; readonly userId: string; readonly verified: false }
-  | { readonly _tag: "VerificationPending"; readonly userId: string; readonly requestId: string }
-  | { readonly _tag: "Verified"; readonly userId: string; readonly verifiedAt: Date };
+  | {
+      readonly _tag: "Authenticated";
+      readonly userId: string;
+      readonly verified: false;
+    }
+  | {
+      readonly _tag: "VerificationPending";
+      readonly userId: string;
+      readonly requestId: string;
+    }
+  | {
+      readonly _tag: "Verified";
+      readonly userId: string;
+      readonly verifiedAt: Date;
+    };
 
 // State constructors
 export const Unauthenticated: UserState = { _tag: "Unauthenticated" };
@@ -16,7 +28,10 @@ export const Authenticated = (userId: string): UserState => ({
   verified: false,
 });
 
-export const VerificationPending = (userId: string, requestId: string): UserState => ({
+export const VerificationPending = (
+  userId: string,
+  requestId: string,
+): UserState => ({
   _tag: "VerificationPending",
   userId,
   requestId,
@@ -37,7 +52,9 @@ export type StateEvent =
   | { readonly _tag: "Logout" };
 
 // Errors
-export class InvalidTransitionError extends Data.TaggedError("InvalidTransitionError")<{
+export class InvalidTransitionError extends Data.TaggedError(
+  "InvalidTransitionError",
+)<{
   readonly from: UserState["_tag"];
   readonly event: StateEvent["_tag"];
 }> {}
@@ -45,7 +62,7 @@ export class InvalidTransitionError extends Data.TaggedError("InvalidTransitionE
 // State machine transition function
 export const transition = (
   state: UserState,
-  event: StateEvent
+  event: StateEvent,
 ): Effect.Effect<UserState, InvalidTransitionError> => {
   switch (event._tag) {
     case "GithubLogin":
@@ -56,7 +73,9 @@ export const transition = (
 
     case "StartVerify":
       if (state._tag === "Authenticated") {
-        return Effect.succeed(VerificationPending(state.userId, event.requestId));
+        return Effect.succeed(
+          VerificationPending(state.userId, event.requestId),
+        );
       }
       break;
 
@@ -83,7 +102,7 @@ export const transition = (
     new InvalidTransitionError({
       from: state._tag,
       event: event._tag,
-    })
+    }),
   );
 };
 
@@ -92,7 +111,9 @@ export const isAuthenticated = (state: UserState): boolean =>
   state._tag !== "Unauthenticated";
 
 // Helper to check if user is verified
-export const isVerified = (state: UserState): state is Extract<UserState, { _tag: "Verified" }> =>
+export const isVerified = (
+  state: UserState,
+): state is Extract<UserState, { _tag: "Verified" }> =>
   state._tag === "Verified";
 
 // Get user ID from any authenticated state
