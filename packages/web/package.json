@@ -10,8 +10,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build:css": "tailwindcss -i ./src/styles/main.css -o ./static/css/main.css --minify",
-    "build:css:watch": "tailwindcss -i ./src/styles/main.css -o ./static/css/main.css --watch",
+    "build:css": "../../node_modules/.bin/tailwindcss -i ./src/styles/main.css -o ./static/css/main.css --minify",
+    "build:css:watch": "../../node_modules/.bin/tailwindcss -i ./src/styles/main.css -o ./static/css/main.css --watch",
     "build": "bun run build:css"
   },
   "dependencies": {
