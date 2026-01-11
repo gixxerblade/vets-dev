@@ -173,7 +173,7 @@ export const layout = ({
       <p>&copy; ${new Date().getFullYear()} vets.dev — Verified credentials for veteran developers</p>
     </footer>
   </div>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@starfederation/datastar"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@starfederation/datastar/dist/datastar.js"></script>
 </body>
 </html>`;
 
