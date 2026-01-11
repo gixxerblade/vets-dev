@@ -23,7 +23,7 @@ jobs:
         run: bun install
 
       - name: Run unit tests
-        run: bun test
+        run: bun test ./packages/
 
   e2e-tests:
     name: E2E Tests
@@ -66,7 +66,7 @@ jobs:
           DATABASE_URL: postgres://vetsdev:vetsdev_local@localhost:5432/vetsdev
 
       - name: Run Playwright tests
-        run: bun run test:e2e
+        run: bunx playwright test
         env:
           DATABASE_URL: postgres://vetsdev:vetsdev_local@localhost:5432/vetsdev
           GITHUB_CLIENT_ID: test_client_id
