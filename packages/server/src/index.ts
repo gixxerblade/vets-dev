@@ -29,6 +29,23 @@ import {
   Users,
 } from "./services/index.js";
 
+// Helper for MIME type detection
+function getContentType(ext: string | undefined): string {
+  const types: Record<string, string> = {
+    css: "text/css; charset=utf-8",
+    js: "application/javascript; charset=utf-8",
+    json: "application/json; charset=utf-8",
+    svg: "image/svg+xml",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    ico: "image/x-icon",
+    woff: "font/woff",
+    woff2: "font/woff2",
+  };
+  return types[ext ?? ""] ?? "application/octet-stream";
+}
+
 console.log(`🚀 vets.dev server starting...`);
 console.log(`📍 http://${config.host}:${config.port}`);
 console.log(`🏥 Health check: http://${config.host}:${config.port}/health`);
@@ -429,6 +446,26 @@ const server = Bun.serve({
         return await runEffect(handleSSEProfile(username));
       }
 
+      // Static files: /static/*
+      const staticMatch = path.match(/^\/static\/(.+)$/);
+      if (staticMatch?.[1] && method === "GET") {
+        const filePath = staticMatch[1].replace(/\.\./g, ""); // Prevent directory traversal
+        const staticDir = `${import.meta.dir}/../../web/static/`;
+        const file = Bun.file(staticDir + filePath);
+
+        if (await file.exists()) {
+          const ext = filePath.split(".").pop()?.toLowerCase();
+          return new Response(file, {
+            headers: {
+              "Content-Type": getContentType(ext),
+              "Cache-Control": config.isDev
+                ? "no-cache"
+                : "public, max-age=31536000",
+            },
+          });
+        }
+      }
+
       // Public profile: /:username
       const usernameMatch = path.match(
         /^\/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?)$/,
@@ -456,4 +493,3 @@ function html(content: string, status: number = 200): Response {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
-

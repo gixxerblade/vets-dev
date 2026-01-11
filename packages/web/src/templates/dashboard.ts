@@ -18,39 +18,39 @@ export const renderDashboard = (user: DashboardUser): string =>
   layout({
     title: "Dashboard",
     content: `
-      <section style="padding: 2rem 0;" data-on-load="@get('/api/sse/user')" data-signals="{verified: ${user.verifiedVeteran}, repoCount: ${user.profile?.githubReposCount ?? 0}, starCount: ${user.profile?.githubStarsCount ?? 0}, languageCount: ${user.profile?.githubLanguages?.length ?? 0}}">
-        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+      <section class="py-8" data-on-load="@get('/api/sse/user')" data-signals="{verified: ${user.verifiedVeteran}, repoCount: ${user.profile?.githubReposCount ?? 0}, starCount: ${user.profile?.githubStarsCount ?? 0}, languageCount: ${user.profile?.githubLanguages?.length ?? 0}}">
+        <div class="flex items-center gap-6 mb-8">
           ${
             user.avatarUrl
-              ? `<img src="${user.avatarUrl}" alt="${user.githubUsername}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--color-border);">`
+              ? `<img src="${user.avatarUrl}" alt="${user.githubUsername}" class="w-20 h-20 rounded-full border-2 border-border">`
               : ""
           }
           <div>
-            <h1 style="margin-bottom: 0.25rem;">${user.githubUsername}</h1>
+            <h1 class="mb-1">${user.githubUsername}</h1>
             <span class="badge badge-success" data-show="$verified">✓ Verified Veteran</span>
-            <span class="badge" style="background: rgba(234, 179, 8, 0.1); color: var(--color-warning); border: 1px solid rgba(234, 179, 8, 0.2);" data-show="!$verified">Not Verified</span>
+            <span class="badge badge-warning" data-show="!$verified">Not Verified</span>
           </div>
         </div>
 
-        <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem;" data-show="!$verified">
-          <h3 style="margin-bottom: 0.5rem;">Verify Your Veteran Status</h3>
-          <p class="text-muted" style="margin-bottom: 1rem;">
+        <div class="card-bordered mb-8" data-show="!$verified">
+          <h3 class="mb-2">Verify Your Veteran Status</h3>
+          <p class="text-text-muted mb-4">
             Complete verification through ID.me to get your verified badge and public profile.
           </p>
           <a href="/verify" class="btn btn-primary">Verify Now</a>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-          <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1rem; text-align: center;">
-            <div style="font-size: 2rem; font-weight: 700;" data-text="$repoCount">${user.profile?.githubReposCount ?? 0}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div class="stat-card">
+            <div class="text-4xl font-bold" data-text="$repoCount">${user.profile?.githubReposCount ?? 0}</div>
             <div class="text-muted">Repositories</div>
           </div>
-          <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1rem; text-align: center;">
-            <div style="font-size: 2rem; font-weight: 700;" data-text="$starCount">${user.profile?.githubStarsCount ?? 0}</div>
+          <div class="stat-card">
+            <div class="text-4xl font-bold" data-text="$starCount">${user.profile?.githubStarsCount ?? 0}</div>
             <div class="text-muted">Stars</div>
           </div>
-          <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1rem; text-align: center;">
-            <div style="font-size: 2rem; font-weight: 700;" data-text="$languageCount">${user.profile?.githubLanguages?.length ?? 0}</div>
+          <div class="stat-card">
+            <div class="text-4xl font-bold" data-text="$languageCount">${user.profile?.githubLanguages?.length ?? 0}</div>
             <div class="text-muted">Languages</div>
           </div>
         </div>
@@ -59,13 +59,13 @@ export const renderDashboard = (user: DashboardUser): string =>
           user.profile?.githubLanguages &&
           user.profile.githubLanguages.length > 0
             ? `
-        <div style="margin-bottom: 2rem;">
+        <div class="mb-8">
           <h3>Top Languages</h3>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <div class="flex gap-2 flex-wrap">
             ${user.profile.githubLanguages
               .map(
                 (lang) =>
-                  `<span style="background: var(--color-surface); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem;">${lang}</span>`,
+                  `<span class="bg-surface px-3 py-1 rounded-full text-sm">${lang}</span>`,
               )
               .join("")}
           </div>
@@ -74,16 +74,16 @@ export const renderDashboard = (user: DashboardUser): string =>
             : ""
         }
 
-        <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1.5rem;" data-show="$verified">
+        <div class="card" data-show="$verified">
           <h3>Your Badge</h3>
-          <p class="text-muted" style="margin-bottom: 1rem;">Embed this badge in your GitHub README:</p>
-          <code style="display: block; padding: 1rem; background: var(--color-bg); border-radius: 0.25rem; word-break: break-all;">
+          <p class="text-text-muted mb-4">Embed this badge in your GitHub README:</p>
+          <code class="block p-4 bg-bg rounded break-all">
             ![Verified Veteran](https://vets.dev/badge/${user.githubUsername}.svg)
           </code>
         </div>
 
-        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
-          <form action="/logout" method="POST" style="display: inline;">
+        <div class="mt-8 pt-4 border-t border-border">
+          <form action="/logout" method="POST" class="inline">
             <button type="submit" class="btn btn-outline">Sign Out</button>
           </form>
         </div>

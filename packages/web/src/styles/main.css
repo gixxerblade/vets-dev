@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base layer customizations */
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply font-sans bg-bg text-text leading-relaxed min-h-screen;
+  }
+
+  h1 {
+    @apply text-4xl font-bold mb-4;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold mb-3;
+  }
+
+  h3 {
+    @apply text-xl font-semibold mb-2;
+  }
+
+  p {
+    @apply mb-4;
+  }
+
+  code {
+    @apply font-mono bg-surface px-1.5 py-0.5 rounded text-sm;
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium no-underline transition-all cursor-pointer border-none text-base;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-hover;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border border-border text-text hover:border-text-muted;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-success-bg text-success border border-success-border;
+  }
+
+  .badge-warning {
+    @apply bg-warning-bg text-warning border border-warning-border;
+  }
+
+  .badge-info {
+    @apply bg-info-bg text-info border border-info-border;
+  }
+
+  .card {
+    @apply bg-surface rounded-lg p-6;
+  }
+
+  .card-bordered {
+    @apply card border border-border;
+  }
+
+  .stat-card {
+    @apply bg-surface rounded-lg p-4 text-center;
+  }
+
+  .alert {
+    @apply rounded-lg p-6 mb-8;
+  }
+
+  .alert-success {
+    @apply bg-success-bg border border-success-border;
+  }
+
+  .alert-warning {
+    @apply bg-warning-bg border border-warning-border;
+  }
+}

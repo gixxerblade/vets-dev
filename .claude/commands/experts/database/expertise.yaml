@@ -1,0 +1,286 @@
+# Database Expert Knowledge
+# Mental model and reference for all database-related functionality in vets-dev
+# Last validated: 2026-01-11
+
+overview:
+  description: |
+    Vets-dev uses Drizzle ORM with PostgreSQL for data persistence.
+    The database layer follows Effect-TS patterns for type-safe error handling.
+    Schema is defined in the shared package, services are in the server package.
+  stack:
+    orm: drizzle-orm@0.38.3
+    driver: postgres@3.4.5
+    migrations: drizzle-kit@0.30.1
+    database: PostgreSQL
+  architecture:
+    - Schema definitions in shared package (cross-package access)
+    - Database client in shared package
+    - Service layer in server package using Effect-TS
+    - Repository pattern for user operations
+    - Immutable audit logs for security events
+
+core_files:
+  schema:
+    path: packages/shared/src/db/schema.ts
+    description: All table definitions using Drizzle pgTable
+    exports:
+      - users, profiles, sessions, verificationEvents, auditLog (tables)
+      - User, NewUser, Profile, NewProfile, Session, NewSession (types)
+      - VerificationEvent, NewVerificationEvent, AuditLogEntry, NewAuditLogEntry (types)
+  client:
+    path: packages/shared/src/db/client.ts
+    description: Drizzle client initialization with postgres driver
+    exports:
+      - db (main query client)
+      - migrationClient (single connection for migrations)
+    requires: DATABASE_URL environment variable
+  config:
+    path: packages/shared/drizzle.config.ts
+    description: Drizzle Kit configuration for migrations
+    settings:
+      schema_path: ./src/db/schema.ts
+      migrations_out: ../../migrations
+      dialect: postgresql
+
+tables:
+  users:
+    description: Core user accounts, linked to GitHub OAuth
+    columns:
+      id: uuid PK, auto-generated
+      github_id: bigint UNIQUE NOT NULL (GitHub user ID)
+      github_username: varchar(39) NOT NULL
+      avatar_url: text nullable
+      verified_veteran: boolean DEFAULT false
+      verified_at: timestamptz nullable
+      created_at: timestamptz DEFAULT now()
+      updated_at: timestamptz DEFAULT now()
+    indexes:
+      - idx_users_github_username (github_username)
+      - idx_users_verified (verified_veteran)
+    relationships:
+      - 1:1 with profiles (cascade delete)
+      - 1:N with sessions (cascade delete)
+      - 1:N with verification_events (cascade delete)
+      - 1:N with audit_log (set null on delete)
+
+  profiles:
+    description: Extended user profile data, GitHub stats cache
+    columns:
+      id: uuid PK, auto-generated
+      user_id: uuid UNIQUE FK -> users.id (cascade delete)
+      bio: text nullable
+      website: varchar(255) nullable
+      github_repos_count: integer DEFAULT 0
+      github_stars_count: integer DEFAULT 0
+      github_languages: jsonb DEFAULT [] (string array)
+      github_last_activity: timestamptz nullable
+      profile_cached_at: timestamptz nullable (cache timestamp)
+      created_at: timestamptz DEFAULT now()
+      updated_at: timestamptz DEFAULT now()
+    relationships:
+      - 1:1 with users
+
+  sessions:
+    description: PostgreSQL-backed session storage
+    columns:
+      id: uuid PK, auto-generated
+      user_id: uuid FK -> users.id (cascade delete)
+      token_hash: varchar(64) UNIQUE NOT NULL (SHA256 hash)
+      expires_at: timestamptz NOT NULL
+      created_at: timestamptz DEFAULT now()
+    indexes:
+      - idx_sessions_token (token_hash)
+      - idx_sessions_expires (expires_at)
+    notes:
+      - Token stored as SHA256 hash, never plain text
+      - Session duration: 7 days (SESSION_DURATION_MS)
+      - Cookie name: vets_session
+
+  verification_events:
+    description: Immutable audit log for veteran verification attempts
+    columns:
+      id: uuid PK, auto-generated
+      user_id: uuid FK -> users.id (cascade delete)
+      provider: varchar(50) NOT NULL (mock, idme)
+      provider_ref: varchar(255) nullable (external reference)
+      status: varchar(20) NOT NULL (pending, success, failed)
+      idempotency_key: varchar(64) UNIQUE nullable
+      metadata: jsonb DEFAULT {} (non-PII data)
+      created_at: timestamptz DEFAULT now()
+    indexes:
+      - idx_verification_user (user_id)
+      - idx_verification_idempotency UNIQUE (idempotency_key)
+    notes:
+      - Verification timeout: 5 minutes (VERIFICATION_TIMEOUT_MS)
+      - Idempotency key prevents duplicate callbacks
+
+  audit_log:
+    description: Immutable security audit trail
+    columns:
+      id: uuid PK, auto-generated
+      user_id: uuid FK -> users.id (set null on delete)
+      action: varchar(100) NOT NULL
+      ip_address: inet nullable
+      user_agent: text nullable
+      metadata: jsonb DEFAULT {}
+      created_at: timestamptz DEFAULT now()
+    indexes:
+      - idx_audit_user (user_id)
+      - idx_audit_action (action)
+      - idx_audit_created (created_at)
+    actions:
+      - login, logout
+      - verify_start, verify_success, verify_fail
+      - badge_generated, session_rotated, profile_updated
+
+services:
+  user_repository:
+    path: packages/server/src/services/user-repository.ts
+    tag: Users
+    layer: UsersLive
+    interface: UserRepository
+    methods:
+      upsertFromGitHub:
+        signature: "(githubUser: GitHubUser) => Effect<{user, isNewUser}, UserRepositoryError>"
+        description: Create or update user from GitHub OAuth data, creates profile on new user
+      findById:
+        signature: "(id: string) => Effect<UserWithProfile, UserNotFoundError | UserRepositoryError>"
+        description: Fetch user with joined profile by UUID
+      findByUsername:
+        signature: "(username: string) => Effect<UserWithProfile, UserNotFoundError | UserRepositoryError>"
+        description: Fetch user with joined profile by GitHub username
+      findByUsernameOptional:
+        signature: "(username: string) => Effect<UserWithProfile | null, UserRepositoryError>"
+        description: Fetch user with joined profile, returns null if not found
+    errors:
+      - UserRepositoryError (tagged, with message and cause)
+      - UserNotFoundError (tagged, with identifier)
+
+  session_service:
+    path: packages/server/src/services/session.ts
+    tag: Session
+    layer: SessionLive
+    interface: SessionService
+    methods:
+      create:
+        signature: "(userId: string) => Effect<string, SessionError>"
+        description: Generate session token, store hash, return plain token
+      validate:
+        signature: "(token: string) => Effect<SessionUser, SessionNotFoundError | SessionError>"
+        description: Validate token, return user if valid and not expired
+      delete:
+        signature: "(token: string) => Effect<void, SessionError>"
+        description: Delete single session by token
+      deleteAllForUser:
+        signature: "(userId: string) => Effect<void, SessionError>"
+        description: Delete all sessions for a user (logout everywhere)
+    errors:
+      - SessionError (tagged, with message and cause)
+      - SessionNotFoundError (tagged, with message)
+    helpers:
+      - hashToken (SHA256), generateToken (32 random bytes)
+      - getSessionCookie, createSessionCookie, createLogoutCookie
+
+  audit_service:
+    path: packages/server/src/services/audit.ts
+    tag: Audit
+    layer: AuditLive
+    interface: AuditService
+    methods:
+      log:
+        signature: "(params: AuditLogParams) => Effect<void, AuditLogError>"
+        description: Insert immutable audit log entry
+    errors:
+      - AuditLogError (tagged, with cause)
+    helpers:
+      - getClientInfo (extract IP and user-agent from request)
+
+  verification_service:
+    path: packages/server/src/services/verification.ts
+    tag: Verification
+    layer: VerificationLive
+    interface: VerificationService
+    requires: Audit service
+    methods:
+      startVerification:
+        signature: "(userId, provider) => Effect<VerificationResult, VerificationError, Audit>"
+        description: Create pending verification event, log audit, return request ID
+      completeVerification:
+        signature: "(requestId, success, providerRef?, metadata?) => Effect<CompletionResult, Error, Audit>"
+        description: Complete verification, update user if success, idempotency check
+      getPendingVerification:
+        signature: "(requestId) => Effect<PendingVerification | null, Error>"
+        description: Fetch pending verification, check expiry
+    errors:
+      - VerificationError (tagged, with message and cause)
+      - VerificationNotFoundError (tagged, with requestId)
+      - VerificationExpiredError (tagged, with requestId and expiredAt)
+      - DuplicateVerificationError (tagged, with requestId)
+
+  github_profile_service:
+    path: packages/server/src/services/github-profile.ts
+    tag: GitHubProfile
+    layer: GitHubProfileLive
+    interface: GitHubProfileService
+    methods:
+      fetchStats:
+        signature: "(username, accessToken?) => Effect<ProfileStats, GitHubProfileError | ProfileNotFoundError>"
+        description: Fetch repos from GitHub API, calculate stats (stars, languages, activity)
+      updateCachedStats:
+        signature: "(userId, stats) => Effect<void, GitHubProfileError>"
+        description: Update profiles table with fetched stats
+      refreshIfStale:
+        signature: "(userId, username, accessToken?) => Effect<void, GitHubProfileError>"
+        description: Check cache timestamp, refresh if older than 24 hours
+    errors:
+      - GitHubProfileError (tagged, with message and cause)
+      - ProfileNotFoundError (tagged, with username)
+    cache_duration: 24 hours (CACHE_DURATION_MS)
+
+migrations:
+  location: migrations/
+  current_files:
+    - 0000_needy_tomorrow_man.sql (initial schema)
+  commands:
+    generate: bun run db:generate (from packages/shared)
+    migrate: bun run db:migrate (from packages/shared)
+    studio: bun run db:studio (Drizzle Studio GUI)
+  notes:
+    - Run from packages/shared directory
+    - Requires DATABASE_URL in environment or .env file
+    - Migrations output to project root migrations/ folder
+
+query_patterns:
+  select_with_join:
+    example: |
+      db.select({ user: users, profile: profiles })
+        .from(users)
+        .leftJoin(profiles, eq(users.id, profiles.userId))
+        .where(eq(users.id, id))
+        .limit(1)
+  insert_with_returning:
+    example: |
+      db.insert(users)
+        .values({ githubId, githubUsername, avatarUrl })
+        .returning()
+  update:
+    example: |
+      db.update(users)
+        .set({ githubUsername, updatedAt: new Date() })
+        .where(eq(users.id, id))
+  delete:
+    example: |
+      db.delete(sessions)
+        .where(eq(sessions.tokenHash, hash))
+  effect_wrapper:
+    example: |
+      Effect.tryPromise({
+        try: () => db.select()...,
+        catch: (error) => new CustomError({ message: "...", cause: error })
+      })
+
+environment:
+  required:
+    DATABASE_URL: PostgreSQL connection string
+  example: DATABASE_URL=postgres://user:pass@localhost:5432/vetsdev
+  loading: drizzle.config.ts loads from .env if not in process.env
