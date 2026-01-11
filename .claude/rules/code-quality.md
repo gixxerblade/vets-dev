@@ -27,5 +27,5 @@ Before completing any task, ensure all of the following checks pass:
 Run all checks before committing:
 
 ```bash
-bun run lint && bun run format && bun run tsc && bun run test && bun run build
+bun run lint && bun run format && bun run tsc && bun run test && bun run test:e2e && bun run build
 ```
