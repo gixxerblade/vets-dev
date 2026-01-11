@@ -4,6 +4,8 @@ const isCI = !!process.env.CI;
 
 export default defineConfig({
   testDir: "./tests",
+  testMatch: "**/*.spec.ts",
+  testIgnore: ["**/setup/**", "**/fixtures/**", "**/helpers/**"],
   fullyParallel: !isCI,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
