@@ -3,6 +3,7 @@ import { type Audit, AuditLive } from "./audit.js";
 import { type GitHubOAuth, GitHubOAuthLive } from "./github-oauth.js";
 import { type GitHubProfile, GitHubProfileLive } from "./github-profile.js";
 import { type Session, SessionLive } from "./session.js";
+import { type SSE, SSELive } from "./sse.js";
 import { type Users, UsersLive } from "./user-repository.js";
 import { type Verification, VerificationLive } from "./verification.js";
 
@@ -36,6 +37,8 @@ export {
   SessionError,
   SessionNotFoundError,
 } from "./session.js";
+export type { SSEService } from "./sse.js";
+export { SSE, SSEError } from "./sse.js";
 export type { UserRepository, UserWithProfile } from "./user-repository.js";
 export {
   UserNotFoundError,
@@ -63,6 +66,7 @@ export const ServicesLive = Layer.mergeAll(
   SessionLive,
   GitHubOAuthLive,
   GitHubProfileLive,
+  SSELive,
   UsersLive,
   VerificationLive,
 );
@@ -73,5 +77,6 @@ export type Services =
   | Session
   | GitHubOAuth
   | GitHubProfile
+  | SSE
   | Users
   | Verification;

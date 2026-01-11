@@ -25,6 +25,7 @@ import {
   getStateCookie,
   ServicesLive,
   Session,
+  SSE,
   Users,
 } from "./services/index.js";
 
@@ -37,7 +38,7 @@ const runEffect = <E, A>(
   effect: Effect.Effect<
     A,
     E,
-    Session | Users | Audit | GitHubOAuth | GitHubProfile
+    Session | Users | Audit | GitHubOAuth | GitHubProfile | SSE
   >,
 ): Promise<A> => Effect.runPromise(Effect.provide(effect, ServicesLive));
 
@@ -252,6 +253,51 @@ const handleVerify = (request: Request) =>
     return html(renderVerify(fullUser));
   });
 
+const handleSSEUser = (request: Request) =>
+  Effect.gen(function* () {
+    const sessionService = yield* Session;
+    const sse = yield* SSE;
+
+    const token = getSessionCookie(request);
+
+    if (!token) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const sessionUser = yield* sessionService
+      .validate(token)
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
+
+    if (!sessionUser) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    // Stream user data
+    return yield* sse.streamUser(sessionUser.id);
+  });
+
+const handleSSEProfile = (username: string) =>
+  Effect.gen(function* () {
+    const sse = yield* SSE;
+
+    // Reserved paths check
+    const reserved = [
+      "health",
+      "auth",
+      "logout",
+      "dashboard",
+      "verify",
+      "badge",
+      "api",
+    ];
+    if (reserved.includes(username.toLowerCase())) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    // Stream profile data
+    return yield* sse.streamProfile(username);
+  });
+
 const handlePublicProfile = (username: string) =>
   Effect.gen(function* () {
     const usersService = yield* Users;
@@ -367,6 +413,20 @@ const server = Bun.serve({
       // Verify page
       if (path === "/verify" && method === "GET") {
         return await runEffect(handleVerify(request));
+      }
+
+      // SSE: User data stream (authenticated)
+      if (path === "/api/sse/user" && method === "GET") {
+        return await runEffect(handleSSEUser(request));
+      }
+
+      // SSE: Profile data stream (public)
+      const sseProfileMatch = path.match(
+        /^\/api\/sse\/profile\/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?)$/,
+      );
+      if (sseProfileMatch?.[1] && method === "GET") {
+        const username = sseProfileMatch[1];
+        return await runEffect(handleSSEProfile(username));
       }
 
       // Public profile: /:username

@@ -19,7 +19,10 @@ export const renderPublicProfile = (user: PublicProfile): string =>
     title: user.githubUsername,
     description: `${user.githubUsername} - ${user.verifiedVeteran ? "Verified Veteran Developer" : "Developer"} on vets.dev`,
     content: `
-      <section style="padding: 2rem 0;">
+      <section style="padding: 2rem 0;" data-on-load="@get('/api/sse/profile/${user.githubUsername}')" data-signals="{
+  repoCount: ${user.profile?.githubReposCount ?? 0},
+  starCount: ${user.profile?.githubStarsCount ?? 0}
+}">
         <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
           ${
             user.avatarUrl
@@ -43,11 +46,11 @@ export const renderPublicProfile = (user: PublicProfile): string =>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
           <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1rem; text-align: center;">
-            <div style="font-size: 2rem; font-weight: 700;">${user.profile?.githubReposCount ?? 0}</div>
+            <div style="font-size: 2rem; font-weight: 700;" data-text="$repoCount">${user.profile?.githubReposCount ?? 0}</div>
             <div class="text-muted">Repositories</div>
           </div>
           <div style="background: var(--color-surface); border-radius: 0.5rem; padding: 1rem; text-align: center;">
-            <div style="font-size: 2rem; font-weight: 700;">${user.profile?.githubStarsCount ?? 0}</div>
+            <div style="font-size: 2rem; font-weight: 700;" data-text="$starCount">${user.profile?.githubStarsCount ?? 0}</div>
             <div class="text-muted">Stars</div>
           </div>
         </div>
