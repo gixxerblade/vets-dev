@@ -20,16 +20,16 @@ This is **not** a social network. It is an **identity & trust layer**.
 
 ### Stack
 
-| Layer | Technology |
-|-------|------------|
-| Runtime | Bun |
-| Language | TypeScript (strict mode) |
-| Framework | Effect (typed pipelines, error handling) |
-| UI | Datastar (SSE-driven HTML) |
-| Database | PostgreSQL 16+ |
-| ORM/Migrations | Drizzle ORM |
-| Session | PostgreSQL-backed sessions |
-| Verification | ID.me (SAML 2.0) |
+| Layer          | Technology                               |
+|----------------|------------------------------------------|
+| Runtime        | Bun                                      |
+| Language       | TypeScript (strict mode)                 |
+| Framework      | Effect (typed pipelines, error handling) |
+| UI             | Datastar (SSE-driven HTML)               |
+| Database       | PostgreSQL 16+                           |
+| ORM/Migrations | Drizzle ORM                              |
+| Session        | PostgreSQL-backed sessions               |
+| Verification   | ID.me (SAML 2.0)                         |
 
 ### Monorepo Structure
 
@@ -72,6 +72,7 @@ vets-dev/
    - `@starfederation/datastar`
 4. Create `docker-compose.yml` with PostgreSQL 16
 5. Create `.env.example` with required variables:
+
    ```sh
    DATABASE_URL=postgres://...
    GITHUB_CLIENT_ID=
@@ -81,6 +82,7 @@ vets-dev/
    IDME_CERTIFICATE=
    SESSION_SECRET=
    ```
+
 6. Add `bun run dev` script that starts server with hot reload
 
 **Validation:**
@@ -195,11 +197,11 @@ psql $DATABASE_URL -c "\dt" # Tables exist
 
 **Endpoints:**
 
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/auth/github` | GET | Redirect to GitHub OAuth |
-| `/auth/github/callback` | GET | Handle OAuth callback |
-| `/logout` | POST | Destroy session |
+| Route                   | Method | Description              |
+|-------------------------|--------|--------------------------|
+| `/auth/github`          | GET    | Redirect to GitHub OAuth |
+| `/auth/github/callback` | GET    | Handle OAuth callback    |
+| `/logout`               | POST   | Destroy session          |
 
 **OAuth Flow:**
 
@@ -291,11 +293,11 @@ open http://localhost:3000/dashboard
 
 **Endpoints:**
 
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/verify` | GET | Show verification options |
-| `/verify/idme` | GET | Initiate SAML request |
-| `/verify/idme/callback` | POST | SAML assertion consumer |
+| Route                   | Method | Description               |
+|-------------------------|--------|---------------------------|
+| `/verify`               | GET    | Show verification options |
+| `/verify/idme`          | GET    | Initiate SAML request     |
+| `/verify/idme/callback` | POST   | SAML assertion consumer   |
 
 **SAML Flow:**
 
@@ -355,7 +357,7 @@ type UserState =
 
 **Transitions:**
 
-```
+```sh
 Unauthenticated ──[github_login]──> Authenticated
 Authenticated ──[start_verify]──> VerificationPending
 VerificationPending ──[verify_success]──> Verified
@@ -393,12 +395,12 @@ test("cannot skip verification", () => {
 
 **Routes:**
 
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page (public) |
-| `/:username` | Public profile page |
-| `/verify` | Verification flow (authenticated) |
-| `/dashboard` | User dashboard (authenticated) |
+| Route        | Description                       |
+|--------------|-----------------------------------|
+| `/`          | Landing page (public)             |
+| `/:username` | Public profile page               |
+| `/verify`    | Verification flow (authenticated) |
+| `/dashboard` | User dashboard (authenticated)    |
 
 **Template Location:** `packages/web/templates/`
 
@@ -434,10 +436,10 @@ curl http://localhost:3000/testuser  # Returns profile HTML
 
 **SSE Endpoints:**
 
-| Endpoint | Events |
-|----------|--------|
-| `/api/sse/user` | `user:updated`, `user:verified` |
-| `/api/sse/profile/:username` | `profile:updated` |
+| Endpoint                     | Events                          |
+|------------------------------|---------------------------------|
+| `/api/sse/user`              | `user:updated`, `user:verified` |
+| `/api/sse/profile/:username` | `profile:updated`               |
 
 **Event Payloads:**
 
@@ -490,7 +492,7 @@ es.onmessage = (e) => console.log(e.data);
 
 **Badge Content:**
 
-```
+```sh
 ┌─────────────────────────────────────┐
 │ ✓ Verified Veteran Developer        │
 │ vets.dev/username                   │
@@ -535,18 +537,18 @@ const signature = hmac("sha256", BADGE_SECRET, payload).slice(0, 8);
 
 **Implementations:**
 
-| Feature | Implementation |
-|---------|----------------|
-| Rate Limiting | 100 req/min per IP on auth endpoints |
-| CSRF | Double-submit cookie pattern |
-| Session Hardening | Rotate session ID on privilege change |
+| Feature              | Implementation                                |
+|----------------------|-----------------------------------------------|
+| Rate Limiting        | 100 req/min per IP on auth endpoints          |
+| CSRF                 | Double-submit cookie pattern                  |
+| Session Hardening    | Rotate session ID on privilege change         |
 | Idempotent Callbacks | Unique idempotency_key in verification_events |
-| Replay Protection | SAML request IDs expire in 5 minutes |
-| Input Validation | Effect Schema on all inputs |
+| Replay Protection    | SAML request IDs expire in 5 minutes          |
+| Input Validation     | Effect Schema on all inputs                   |
 
 **Headers (all responses):**
 
-```
+```sh
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'
 X-Content-Type-Options: nosniff
@@ -575,15 +577,15 @@ for i in {1..150}; do curl http://localhost:3000/auth/github; done
 
 **Logged Events:**
 
-| Action | Data |
-|--------|------|
-| `login` | user_id, ip, user_agent |
-| `logout` | user_id, ip |
-| `verify_start` | user_id, provider |
-| `verify_success` | user_id, provider, provider_ref |
-| `verify_fail` | user_id, provider, reason |
-| `badge_generated` | user_id, requester_ip |
-| `session_rotated` | user_id, reason |
+| Action            | Data                            |
+|-------------------|---------------------------------|
+| `login`           | user_id, ip, user_agent         |
+| `logout`          | user_id, ip                     |
+| `verify_start`    | user_id, provider               |
+| `verify_success`  | user_id, provider, provider_ref |
+| `verify_fail`     | user_id, provider, reason       |
+| `badge_generated` | user_id, requester_ip           |
+| `session_rotated` | user_id, reason                 |
 
 **Query Interface:**
 

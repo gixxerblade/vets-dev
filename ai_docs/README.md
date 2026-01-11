@@ -26,3 +26,4 @@ The following URLs will be scraped and cached locally:
 - https://effect.website/llms.txt
 - https://bun.sh/llms.txt
 - https://data-star.dev/reference/attributes
+- https://github.com/starfederation/datastar-typescript

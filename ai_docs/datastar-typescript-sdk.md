@@ -62,11 +62,11 @@ The SDK enables reading client signals and streaming DOM updates:
 
 ## Runtime Requirements
 
-| Runtime | Minimum Version | Import Path |
-|---------|-----------------|-------------|
-| Node.js | 18+ | @starfederation/datastar-sdk/node |
-| Deno | 1.30+ | npm:@starfederation/datastar-sdk/web |
-| Bun | 1.0+ | @starfederation/datastar-sdk/web |
+| Runtime | Minimum Version | Import Path                          |
+|---------|-----------------|--------------------------------------|
+| Node.js | 18+             | @starfederation/datastar-sdk/node    |
+| Deno    | 1.30+           | npm:@starfederation/datastar-sdk/web |
+| Bun     | 1.0+            | @starfederation/datastar-sdk/web     |
 
 ## Development
 
