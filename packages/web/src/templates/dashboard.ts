@@ -35,7 +35,7 @@ export const renderDashboard = (user: DashboardUser): string =>
         <div class="card-bordered mb-8" data-show="!$verified">
           <h3 class="mb-2">Verify Your Veteran Status</h3>
           <p class="text-text-muted mb-4">
-            Complete verification through ID.me to get your verified badge and public profile.
+            Complete verification through GovX to get your verified badge and public profile.
           </p>
           <a href="/verify" class="btn btn-primary">Verify Now</a>
         </div>

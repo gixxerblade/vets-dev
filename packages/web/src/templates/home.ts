@@ -28,7 +28,7 @@ export const renderHomePage = (): string =>
           </div>
           <div>
             <h3>🎖️ Veteran Status</h3>
-            <p class="text-muted">Verified through ID.me — no PII stored.</p>
+            <p class="text-muted">Verified through GovX — no PII stored.</p>
           </div>
           <div>
             <h3>📊 Developer Stats</h3>
@@ -45,7 +45,7 @@ export const renderHomePage = (): string =>
         <h2>How It Works</h2>
         <ol class="pl-6 text-text-muted">
           <li class="mb-3">Sign in with your GitHub account</li>
-          <li class="mb-3">Verify your veteran status through ID.me</li>
+          <li class="mb-3">Verify your veteran status through GovX</li>
           <li class="mb-3">Get your verified profile at <code>vets.dev/username</code></li>
           <li>Embed your badge anywhere: <code>![](https://vets.dev/badge/username.svg)</code></li>
         </ol>

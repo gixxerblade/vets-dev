@@ -8,7 +8,7 @@ import { Audit } from "./audit.js";
 const VERIFICATION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 // Types
-export type VerificationProvider = "mock" | "idme";
+export type VerificationProvider = "mock" | "govx";
 
 export interface VerificationResult {
   readonly requestId: string;
@@ -136,8 +136,8 @@ const makeVerificationService = (): VerificationService => ({
         );
 
       // Mock provider returns no redirect URL (simulation mode)
-      // ID.me provider would return a SAML redirect URL here
-      const redirectUrl = provider === "idme" ? null : null; // TODO: Add ID.me integration
+      // GovX provider would return a redirect URL here
+      const redirectUrl = provider === "govx" ? null : null; // TODO: Add GovX integration
 
       return {
         requestId,

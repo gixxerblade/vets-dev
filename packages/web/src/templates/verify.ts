@@ -82,16 +82,16 @@ export const renderVerify = (user: VerifyPageUser): string =>
               <div class="card-bordered">
                 <div class="flex items-start justify-between mb-4">
                   <div>
-                    <h3 class="mb-2">ID.me Verification</h3>
+                    <h3 class="mb-2">GovX Verification</h3>
                     <p class="text-text-muted text-sm mb-0">
-                      Secure verification through ID.me, trusted by the VA and military services.
+                      Secure verification through GovX, trusted by the VA and military services.
                       Supports all branches of the U.S. military.
                     </p>
                   </div>
                   <span class="badge badge-info">Coming Soon</span>
                 </div>
                 <p class="text-text-muted text-sm mb-0">
-                  ID.me integration is currently being set up. Check back soon for verification availability.
+                  GovX integration is currently being set up. Check back soon for verification availability.
                 </p>
               </div>
             </div>

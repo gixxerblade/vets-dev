@@ -71,7 +71,7 @@ export const verificationEvents = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-    provider: varchar("provider", { length: 50 }).notNull(), // 'idme', 'sheerid', etc.
+    provider: varchar("provider", { length: 50 }).notNull(), // 'govx', 'sheerid', etc.
     providerRef: varchar("provider_ref", { length: 255 }), // External reference ID
     status: varchar("status", { length: 20 }).notNull(), // 'pending', 'success', 'failed'
     idempotencyKey: varchar("idempotency_key", { length: 64 }).unique(), // Prevent duplicate callbacks
