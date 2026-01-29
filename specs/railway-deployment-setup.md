@@ -41,7 +41,7 @@ The vets-dev application is a Bun-based monorepo with:
 - GITHUB_CLIENT_ID & GITHUB_CLIENT_SECRET
 - SESSION_SECRET
 - BADGE_SECRET
-- IDME_* variables for SAML (Phase 3)
+- GOVX_* variables for verification (Phase 3)
 - PORT, HOST, NODE_ENV
 
 ## Implementation Plan
@@ -306,12 +306,12 @@ railway variables --set "SESSION_SECRET=$(openssl rand -hex 32)"
 railway variables --set "BADGE_SECRET=$(openssl rand -hex 32)"
 ```
 
-**ID.me SAML Variables (Phase 3 - when ready):**
+**GovX Verification Variables (Phase 3 - when ready):**
 
 ```
-IDME_ENTITY_ID = your_entity_id
-IDME_SSO_URL = your_sso_url
-IDME_CERTIFICATE = your_certificate
+GOVX_CLIENT_ID = your_client_id
+GOVX_CLIENT_SECRET = your_client_secret
+GOVX_REDIRECT_URI = your_redirect_uri
 ```
 
 ### Phase 6: Health Check Configuration
@@ -715,7 +715,7 @@ Update GitHub OAuth app settings with your Railway domain:
    - Subdomain: Add CNAME record pointing to your Railway app
    - Apex domain: Use Railway's instructions for A records
 
-### ID.me SAML Configuration (Phase 3)
+### GovX Verification Configuration (Phase 3)
 
 When implementing Phase 3, update SAML settings with production URLs.
 

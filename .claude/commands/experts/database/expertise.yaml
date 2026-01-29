@@ -101,7 +101,7 @@ tables:
     columns:
       id: uuid PK, auto-generated
       user_id: uuid FK -> users.id (cascade delete)
-      provider: varchar(50) NOT NULL (mock, idme)
+      provider: varchar(50) NOT NULL (mock, govx)
       provider_ref: varchar(255) nullable (external reference)
       status: varchar(20) NOT NULL (pending, success, failed)
       idempotency_key: varchar(64) UNIQUE nullable

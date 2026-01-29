@@ -29,7 +29,7 @@ This is **not** a social network. It is an **identity & trust layer**.
 | Database       | PostgreSQL 16+                           |
 | ORM/Migrations | Drizzle ORM                              |
 | Session        | PostgreSQL-backed sessions               |
-| Verification   | ID.me (SAML 2.0)                         |
+| Verification   | GovX                                     |
 
 ### Monorepo Structure
 
@@ -77,9 +77,9 @@ vets-dev/
    DATABASE_URL=postgres://...
    GITHUB_CLIENT_ID=
    GITHUB_CLIENT_SECRET=
-   IDME_ENTITY_ID=
-   IDME_SSO_URL=
-   IDME_CERTIFICATE=
+   GOVX_CLIENT_ID=
+   GOVX_CLIENT_SECRET=
+   GOVX_REDIRECT_URI=
    SESSION_SECRET=
    ```
 
@@ -149,7 +149,7 @@ CREATE INDEX idx_sessions_expires ON sessions(expires_at);
 CREATE TABLE verification_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  provider VARCHAR(50) NOT NULL,          -- 'idme', 'sheerid', etc.
+  provider VARCHAR(50) NOT NULL,          -- 'govx', 'sheerid', etc.
   provider_ref VARCHAR(255),              -- External reference ID
   status VARCHAR(20) NOT NULL,            -- 'pending', 'success', 'failed'
   idempotency_key VARCHAR(64) UNIQUE,     -- Prevent duplicate callbacks
@@ -280,60 +280,54 @@ open http://localhost:3000/dashboard
 
 ## Phase 3 — Veteran Verification
 
-### Task 3.1 — ID.me Integration
+### Task 3.1 — GovX Integration
 
-**Goal:** Verify veteran status via ID.me SAML 2.0
+**Goal:** Verify veteran status via GovX
 
-**Why ID.me:**
+**Why GovX:**
 
-- Official VA partner
-- SAML 2.0 standard
+- Trusted military verification provider
+- OAuth-based integration
 - No PII returned to our app (only verification status)
-- Free for veteran verification
+- Supports all branches of the U.S. military
 
 **Endpoints:**
 
 | Route                   | Method | Description               |
 |-------------------------|--------|---------------------------|
 | `/verify`               | GET    | Show verification options |
-| `/verify/idme`          | GET    | Initiate SAML request     |
-| `/verify/idme/callback` | POST   | SAML assertion consumer   |
+| `/verify/govx`          | GET    | Initiate GovX OAuth       |
+| `/verify/govx/callback` | GET    | Handle GovX callback      |
 
-**SAML Flow:**
+**OAuth Flow:**
 
-1. User visits `/verify/idme`
-2. Generate SAML AuthnRequest with:
-   - Unique request ID (for replay protection)
-   - AssertionConsumerServiceURL
-   - NameIDPolicy
-3. Redirect to ID.me SSO URL
-4. User authenticates with ID.me
-5. ID.me POSTs SAML Response to `/verify/idme/callback`
-6. Validate:
-   - Signature (using ID.me certificate)
-   - Timestamps (NotBefore, NotOnOrAfter)
-   - Audience restriction
-   - InResponseTo matches our request ID
-7. Extract verification attributes
+1. User visits `/verify/govx`
+2. Generate OAuth request with:
+   - Unique state parameter (for CSRF protection)
+   - Client ID and redirect URI
+3. Redirect to GovX authorization URL
+4. User authenticates with GovX
+5. GovX redirects to `/verify/govx/callback` with authorization code
+6. Exchange code for access token
+7. Fetch verification status from GovX API
 8. Create `verification_event` record
 9. Update user: `verified_veteran = true`, `verified_at = now()`
 10. Redirect to profile with success message
 
 **Security Requirements:**
 
-- SAML Response signature validation (mandatory)
-- Replay protection via InResponseTo
+- State parameter validation (CSRF protection)
 - Request ID stored in session, expires in 5 minutes
 - Idempotency key prevents duplicate processing
 
-**Effect Service:** `packages/server/src/services/IDmeVerification.ts`
+**Effect Service:** `packages/server/src/services/GovXVerification.ts`
 
 **Validation:**
 
 ```sh
-# With ID.me sandbox credentials
-open http://localhost:3000/verify/idme
-# Complete ID.me flow
+# With GovX sandbox credentials
+open http://localhost:3000/verify/govx
+# Complete GovX flow
 # Check: verified_veteran = true
 # Check: verification_events row created
 # Check: Audit log entry for 'verify_success'
@@ -560,8 +554,8 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ```sh
 # Duplicate callback test
-curl -X POST /verify/idme/callback -d "SAMLResponse=..."
-curl -X POST /verify/idme/callback -d "SAMLResponse=..."  # Same payload
+curl -X GET /verify/govx/callback?code=test&state=...
+curl -X GET /verify/govx/callback?code=test&state=...  # Same payload
 # Check: Only one verification_event created
 
 # Rate limit test
@@ -664,7 +658,7 @@ bun run test:e2e
 - [ ] Database backups configured
 - [ ] Error monitoring (Sentry or similar)
 - [ ] Uptime monitoring
-- [ ] ID.me production credentials obtained
+- [ ] GovX production credentials obtained
 - [ ] GitHub OAuth app in production mode
 
 ### Launch Criteria
