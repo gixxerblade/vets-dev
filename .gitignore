@@ -140,5 +140,9 @@ vite.config.ts.timestamp-*
 gp
 .claude/data
 
+# Python bytecode cache
+__pycache__/
+*.pyc
+
 # Effect reference repository
 .reference/
