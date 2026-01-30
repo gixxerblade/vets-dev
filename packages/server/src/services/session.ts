@@ -107,9 +107,9 @@ const makeSessionService = (): SessionService => ({
 
       const row = result[0];
       if (!row) {
-        return yield* Effect.fail(
-          new SessionNotFoundError({ message: "Session not found or expired" }),
-        );
+        return yield* new SessionNotFoundError({
+          message: "Session not found or expired",
+        });
       }
 
       const { user } = row;

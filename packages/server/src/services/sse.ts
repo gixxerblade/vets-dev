@@ -1,6 +1,7 @@
 import { Context, Data, Effect, Layer } from "effect";
 import { ServerSentEventGenerator } from "@starfederation/datastar-sdk/web";
 import { Users } from "./user-repository.js";
+import type { UserRepository } from "./user-repository.js";
 
 // Errors
 export class SSEError extends Data.TaggedError("SSEError")<{
@@ -8,26 +9,21 @@ export class SSEError extends Data.TaggedError("SSEError")<{
   readonly cause?: unknown;
 }> {}
 
-// Service interface
+// Service interface - Users dependency resolved at layer creation, not leaked to callers
 export interface SSEService {
-  readonly streamUser: (
-    userId: string,
-  ) => Effect.Effect<Response, SSEError, Users>;
+  readonly streamUser: (userId: string) => Effect.Effect<Response, SSEError>;
   readonly streamProfile: (
     username: string,
-  ) => Effect.Effect<Response, SSEError, Users>;
+  ) => Effect.Effect<Response, SSEError>;
 }
 
 // Service tag
 export class SSE extends Context.Tag("SSE")<SSE, SSEService>() {}
 
-// Service implementation
-const makeSSEService = (): SSEService => ({
+// Service implementation - takes Users as a parameter instead of requiring it from callers
+const makeSSEService = (users: UserRepository): SSEService => ({
   streamUser: (userId) =>
     Effect.gen(function* () {
-      // Get the Users service
-      const users = yield* Users;
-
       // Fetch user data
       const user = yield* users.findById(userId).pipe(
         Effect.mapError(
@@ -77,9 +73,6 @@ const makeSSEService = (): SSEService => ({
 
   streamProfile: (username) =>
     Effect.gen(function* () {
-      // Get the Users service
-      const users = yield* Users;
-
       // Fetch user data by username
       const user = yield* users.findByUsername(username).pipe(
         Effect.mapError(
@@ -133,5 +126,8 @@ const makeSSEService = (): SSEService => ({
     }),
 });
 
-// Layer
-export const SSELive = Layer.succeed(SSE, makeSSEService());
+// Layer - resolve Users dependency here so it's not leaked to callers
+export const SSELive = Layer.effect(
+  SSE,
+  Effect.map(Users, (users) => makeSSEService(users)),
+);

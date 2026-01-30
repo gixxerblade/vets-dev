@@ -93,11 +93,9 @@ const makeGitHubOAuthService = (): GitHubOAuthService => ({
       });
 
       if (!response.ok) {
-        return yield* Effect.fail(
-          new GitHubTokenError({
-            message: `GitHub token exchange failed: ${response.status}`,
-          }),
-        );
+        return yield* new GitHubTokenError({
+          message: `GitHub token exchange failed: ${response.status}`,
+        });
       }
 
       const data = yield* Effect.tryPromise({
@@ -112,18 +110,16 @@ const makeGitHubOAuthService = (): GitHubOAuthService => ({
       });
 
       if (data.error) {
-        return yield* Effect.fail(
-          new GitHubTokenError({
-            message: data.error_description ?? data.error,
-            errorCode: data.error,
-          }),
-        );
+        return yield* new GitHubTokenError({
+          message: data.error_description ?? data.error,
+          errorCode: data.error,
+        });
       }
 
       if (!data.access_token) {
-        return yield* Effect.fail(
-          new GitHubTokenError({ message: "No access token in response" }),
-        );
+        return yield* new GitHubTokenError({
+          message: "No access token in response",
+        });
       }
 
       return data.access_token;
@@ -145,12 +141,10 @@ const makeGitHubOAuthService = (): GitHubOAuthService => ({
       });
 
       if (!response.ok) {
-        return yield* Effect.fail(
-          new GitHubUserFetchError({
-            message: `GitHub user fetch failed`,
-            status: response.status,
-          }),
-        );
+        return yield* new GitHubUserFetchError({
+          message: `GitHub user fetch failed`,
+          status: response.status,
+        });
       }
 
       const user = yield* Effect.tryPromise({

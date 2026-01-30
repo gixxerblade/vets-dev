@@ -153,7 +153,7 @@ async function test4_HealthCheck() {
   console.log("\nTest 4: Health Check Endpoint...");
   try {
     const response = await checkEndpoint("/health");
-    const json = await response.json();
+    const json = (await response.json()) as { status: string };
 
     if (json.status === "ok") {
       results.push({

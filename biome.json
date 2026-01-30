@@ -6,7 +6,12 @@
     "indentWidth": 2
   },
   "files": {
-    "includes": ["**", "!packages/server/dist/*"]
+    "includes": [
+      "**",
+      "!packages/server/dist/*",
+      "!.reference",
+      "!playwright-reports"
+    ]
   },
   "linter": {
     "enabled": true,
