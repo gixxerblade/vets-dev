@@ -139,3 +139,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 gp
 .claude/data
+
+# Effect reference repository
+.reference/
