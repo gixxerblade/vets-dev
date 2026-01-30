@@ -153,11 +153,9 @@ const makeUserRepository = (): UserRepository => ({
 
       const newUser = insertResult[0];
       if (!newUser) {
-        return yield* Effect.fail(
-          new UserRepositoryError({
-            message: "Failed to create user - no result returned",
-          }),
-        );
+        return yield* new UserRepositoryError({
+          message: "Failed to create user - no result returned",
+        });
       }
 
       // Create empty profile
@@ -208,7 +206,7 @@ const makeUserRepository = (): UserRepository => ({
 
       const row = result[0];
       if (!row) {
-        return yield* Effect.fail(new UserNotFoundError({ identifier: id }));
+        return yield* new UserNotFoundError({ identifier: id });
       }
 
       const { user, profile } = row;
@@ -234,9 +232,7 @@ const makeUserRepository = (): UserRepository => ({
 
       const row = result[0];
       if (!row) {
-        return yield* Effect.fail(
-          new UserNotFoundError({ identifier: username }),
-        );
+        return yield* new UserNotFoundError({ identifier: username });
       }
 
       const { user, profile } = row;

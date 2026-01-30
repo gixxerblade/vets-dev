@@ -61,12 +61,15 @@ export {
 } from "./verification.js";
 
 // Combined layer with all services
+// SSELive depends on Users, so provide UsersLive to it
+const SSEWithDeps = SSELive.pipe(Layer.provide(UsersLive));
+
 export const ServicesLive = Layer.mergeAll(
   AuditLive,
   SessionLive,
   GitHubOAuthLive,
   GitHubProfileLive,
-  SSELive,
+  SSEWithDeps,
   UsersLive,
   VerificationLive,
 );

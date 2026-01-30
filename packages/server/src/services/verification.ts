@@ -125,13 +125,12 @@ const makeVerificationService = (): VerificationService => ({
           metadata: { provider, requestId },
         })
         .pipe(
-          Effect.catchAll((error) =>
-            Effect.fail(
+          Effect.mapError(
+            (error) =>
               new VerificationError({
                 message: "Failed to log verification start",
                 cause: error,
               }),
-            ),
           ),
         );
 
@@ -171,37 +170,31 @@ const makeVerificationService = (): VerificationService => ({
 
       const pendingEvent = pendingEvents[0];
       if (!pendingEvent) {
-        return yield* Effect.fail(new VerificationNotFoundError({ requestId }));
+        return yield* new VerificationNotFoundError({ requestId });
       }
 
       // Check if event has expired (5 minutes)
       const createdAt = pendingEvent.createdAt;
       if (!createdAt) {
-        return yield* Effect.fail(
-          new VerificationError({
-            message: "Verification event missing timestamp",
-          }),
-        );
+        return yield* new VerificationError({
+          message: "Verification event missing timestamp",
+        });
       }
 
       const now = new Date();
       const elapsed = now.getTime() - createdAt.getTime();
       if (elapsed > VERIFICATION_TIMEOUT_MS) {
-        return yield* Effect.fail(
-          new VerificationExpiredError({
-            requestId,
-            expiredAt: new Date(createdAt.getTime() + VERIFICATION_TIMEOUT_MS),
-          }),
-        );
+        return yield* new VerificationExpiredError({
+          requestId,
+          expiredAt: new Date(createdAt.getTime() + VERIFICATION_TIMEOUT_MS),
+        });
       }
 
       const userId = pendingEvent.userId;
       if (!userId) {
-        return yield* Effect.fail(
-          new VerificationError({
-            message: "Verification event missing user ID",
-          }),
-        );
+        return yield* new VerificationError({
+          message: "Verification event missing user ID",
+        });
       }
 
       // Check for duplicate completion (idempotency)
@@ -220,9 +213,7 @@ const makeVerificationService = (): VerificationService => ({
       });
 
       if (existingCompletions.length > 0) {
-        return yield* Effect.fail(
-          new DuplicateVerificationError({ requestId }),
-        );
+        return yield* new DuplicateVerificationError({ requestId });
       }
 
       // Record completion event
@@ -279,13 +270,12 @@ const makeVerificationService = (): VerificationService => ({
             },
           })
           .pipe(
-            Effect.catchAll((error) =>
-              Effect.fail(
+            Effect.mapError(
+              (error) =>
                 new VerificationError({
                   message: "Failed to log verification success",
                   cause: error,
                 }),
-              ),
             ),
           );
       } else {
@@ -302,13 +292,12 @@ const makeVerificationService = (): VerificationService => ({
             },
           })
           .pipe(
-            Effect.catchAll((error) =>
-              Effect.fail(
+            Effect.mapError(
+              (error) =>
                 new VerificationError({
                   message: "Failed to log verification failure",
                   cause: error,
                 }),
-              ),
             ),
           );
       }
@@ -349,31 +338,25 @@ const makeVerificationService = (): VerificationService => ({
       // Check if event has expired
       const createdAt = pendingEvent.createdAt;
       if (!createdAt) {
-        return yield* Effect.fail(
-          new VerificationError({
-            message: "Verification event missing timestamp",
-          }),
-        );
+        return yield* new VerificationError({
+          message: "Verification event missing timestamp",
+        });
       }
 
       const now = new Date();
       const elapsed = now.getTime() - createdAt.getTime();
       if (elapsed > VERIFICATION_TIMEOUT_MS) {
-        return yield* Effect.fail(
-          new VerificationExpiredError({
-            requestId,
-            expiredAt: new Date(createdAt.getTime() + VERIFICATION_TIMEOUT_MS),
-          }),
-        );
+        return yield* new VerificationExpiredError({
+          requestId,
+          expiredAt: new Date(createdAt.getTime() + VERIFICATION_TIMEOUT_MS),
+        });
       }
 
       const userId = pendingEvent.userId;
       if (!userId) {
-        return yield* Effect.fail(
-          new VerificationError({
-            message: "Verification event missing user ID",
-          }),
-        );
+        return yield* new VerificationError({
+          message: "Verification event missing user ID",
+        });
       }
 
       return {

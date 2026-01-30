@@ -89,15 +89,13 @@ const makeGitHubProfileService = (): GitHubProfileService => ({
         });
 
         if (response.status === 404) {
-          return yield* Effect.fail(new ProfileNotFoundError({ username }));
+          return yield* new ProfileNotFoundError({ username });
         }
 
         if (!response.ok) {
-          return yield* Effect.fail(
-            new GitHubProfileError({
-              message: `GitHub API error: ${response.status}`,
-            }),
-          );
+          return yield* new GitHubProfileError({
+            message: `GitHub API error: ${response.status}`,
+          });
         }
 
         const pageRepos = yield* Effect.tryPromise({
