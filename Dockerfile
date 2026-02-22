@@ -28,6 +28,7 @@ RUN groupadd --system --gid 1001 nodejs && \
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/package.json ./
+COPY --from=build /app/packages/shared/migrations ./packages/shared/migrations
 
 # Set ownership and switch to non-root user
 RUN chown -R bunjs:nodejs /app
