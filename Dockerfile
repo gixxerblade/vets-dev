@@ -37,4 +37,4 @@ USER bunjs
 EXPOSE 3000
 
 # Start the server
-CMD ["sh", "-c", "bun run db:migrate && bun run start"]
+CMD ["sh", "-c", "bun run db:migrate && bun run --filter @vets-dev/server start"]

@@ -1,2 +1,2 @@
 [build]
-watchPatterns = ["/packages/server/**", "/packages/web/**", "/packages/shared/**"]
+watchPatterns = ["Dockerfile", "/packages/server/**", "/packages/web/**", "/packages/shared/**"]
