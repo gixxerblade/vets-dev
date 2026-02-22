@@ -9,10 +9,10 @@ const config: Config = {
         surface: "#141414",
         border: "#2a2a2a",
         text: "#e5e5e5",
-        "text-muted": "#737373",
+        "text-muted": "#949494",
         primary: {
-          DEFAULT: "#3b82f6",
-          hover: "#2563eb",
+          DEFAULT: "#2563eb",
+          hover: "#1d4ed8",
         },
         success: {
           DEFAULT: "#22c55e",
