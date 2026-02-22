@@ -31,6 +31,12 @@
   code {
     @apply font-mono bg-surface px-1.5 py-0.5 rounded text-sm;
   }
+
+  /* Visible focus indicators for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
 }
 
 /* Component layer for reusable patterns */
@@ -85,5 +91,47 @@
 
   .alert-warning {
     @apply bg-warning-bg border border-warning-border;
+  }
+
+  /* Screen-reader-only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Skip navigation link — hidden until focused */
+  .skip-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    padding: 1rem 1.5rem;
+    background: var(--color-primary, #3b82f6);
+    color: white;
+    clip: auto;
+    width: auto;
+    height: auto;
+    font-weight: 600;
+    border-radius: 0 0 0.5rem 0;
   }
 }

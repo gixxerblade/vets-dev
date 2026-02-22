@@ -22,6 +22,20 @@
       },
       "style": {
         "noNonNullAssertion": "error"
+      },
+      "a11y": {
+        "recommended": true,
+        "noAriaUnsupportedElements": "error",
+        "useAltText": "error",
+        "useAriaPropsForRole": "error",
+        "useButtonType": "error",
+        "useHeadingContent": "error",
+        "useHtmlLang": "error",
+        "useKeyWithClickEvents": "error",
+        "useKeyWithMouseEvents": "error",
+        "useMediaCaption": "error",
+        "useValidAriaProps": "error",
+        "useValidAriaValues": "error"
       }
     }
   },
