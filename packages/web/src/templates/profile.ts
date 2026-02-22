@@ -22,18 +22,18 @@ export const renderPublicProfile = (user: PublicProfile): string =>
       <section class="py-8" data-on-load="@get('/api/sse/profile/${user.githubUsername}')" data-signals="{
   repoCount: ${user.profile?.githubReposCount ?? 0},
   starCount: ${user.profile?.githubStarsCount ?? 0}
-}">
+}" aria-labelledby="profile-heading">
         <div class="flex items-center gap-6 mb-8">
           ${
             user.avatarUrl
-              ? `<img src="${user.avatarUrl}" alt="${user.githubUsername}" class="w-24 h-24 rounded-full border-2 border-border">`
+              ? `<img src="${user.avatarUrl}" alt="Profile photo of ${user.githubUsername}" class="w-24 h-24 rounded-full border-2 border-border">`
               : ""
           }
           <div>
-            <h1 class="mb-2">${user.githubUsername}</h1>
+            <h1 id="profile-heading" class="mb-2">${user.githubUsername}</h1>
             ${
               user.verifiedVeteran
-                ? `<span class="badge badge-success">✓ Verified Veteran Developer</span>`
+                ? `<span class="badge badge-success" role="status"><span aria-hidden="true">✓ </span>Verified Veteran Developer</span>`
                 : ""
             }
             ${
@@ -44,14 +44,14 @@ export const renderPublicProfile = (user: PublicProfile): string =>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <div class="stat-card">
-            <div class="text-4xl font-bold" data-text="$repoCount">${user.profile?.githubReposCount ?? 0}</div>
-            <div class="text-muted">Repositories</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" aria-label="GitHub statistics">
+          <div class="stat-card" aria-label="Repositories">
+            <div class="text-4xl font-bold" data-text="$repoCount" aria-live="polite">${user.profile?.githubReposCount ?? 0}</div>
+            <div class="text-muted" aria-hidden="true">Repositories</div>
           </div>
-          <div class="stat-card">
-            <div class="text-4xl font-bold" data-text="$starCount">${user.profile?.githubStarsCount ?? 0}</div>
-            <div class="text-muted">Stars</div>
+          <div class="stat-card" aria-label="Stars">
+            <div class="text-4xl font-bold" data-text="$starCount" aria-live="polite">${user.profile?.githubStarsCount ?? 0}</div>
+            <div class="text-muted" aria-hidden="true">Stars</div>
           </div>
         </div>
 
@@ -61,26 +61,26 @@ export const renderPublicProfile = (user: PublicProfile): string =>
             ? `
         <div class="mb-8">
           <h3>Languages</h3>
-          <div class="flex gap-2 flex-wrap">
+          <ul class="flex gap-2 flex-wrap list-none p-0" aria-label="Programming languages">
             ${user.profile.githubLanguages
               .map(
                 (lang) =>
-                  `<span class="bg-surface px-3 py-1 rounded-full text-sm">${lang}</span>`,
+                  `<li><span class="bg-surface px-3 py-1 rounded-full text-sm">${lang}</span></li>`,
               )
               .join("")}
-          </div>
+          </ul>
         </div>
         `
             : ""
         }
 
         <div class="flex gap-4 flex-wrap">
-          <a href="https://github.com/${user.githubUsername}" target="_blank" rel="noopener" class="btn btn-outline">
-            View on GitHub
+          <a href="https://github.com/${user.githubUsername}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" aria-label="View ${user.githubUsername} on GitHub (opens in new tab)">
+            View on GitHub<span class="sr-only"> (opens in new tab)</span>
           </a>
           ${
             user.profile?.website
-              ? `<a href="${escapeHtml(user.profile.website)}" target="_blank" rel="noopener" class="btn btn-outline">Website</a>`
+              ? `<a href="${escapeHtml(user.profile.website)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" aria-label="Visit ${user.githubUsername}'s website (opens in new tab)">Website<span class="sr-only"> (opens in new tab)</span></a>`
               : ""
           }
         </div>
